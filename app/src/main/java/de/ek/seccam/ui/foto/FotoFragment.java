@@ -334,7 +334,7 @@ public class FotoFragment extends Fragment {
     {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME,  DiyplayName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, MIMETYPE);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
         values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
         ContentResolver resolver = context.getContentResolver();

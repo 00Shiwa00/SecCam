@@ -13,5 +13,8 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_Username">Username</string>
     <string name="pw">"Welcome !"</string>
+    <string name="btnCapture">capture</string>
+    <string name="need_camera_permissions">This app needs the WRITE_EXTERNAL_STORAGE, RECORD_AUDIO
+        and CAMERA permissions to capture video from the camera.</string>
     <string name="register_failed">"User already exists"</string>
 </resources>
