@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import de.ek.seccam.FotoActivity;
 import de.ek.seccam.R;
+import de.ek.seccam.allinActivity;
 import de.ek.seccam.ui.login.LoginViewModel;
 import de.ek.seccam.ui.login.LoginViewModelFactory;
 import de.ek.seccam.databinding.ActivityLoginBinding;

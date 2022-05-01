@@ -75,17 +75,19 @@ public class FotoFragment extends Fragment {
     private View inflatedView;
     private Context context;
     private Button change_cameramode;
-    private boolean isFoto =true;
+    private boolean isFoto = true;
     private static Bundle bundle;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private String password;
-    private int activecam=0;
+    private int activecam = 0;
     private String userScreenName;
 
-    public FotoFragment(String userScreenName, String password){
+    public FotoFragment(String userScreenName, String password) {
         this.userScreenName = userScreenName;
         this.password = password;
-        Log.d("FotoFragment", "public foto");}
+        Log.d("FotoFragment", "public foto");
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -97,7 +99,7 @@ public class FotoFragment extends Fragment {
         takepicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(password != null && !password.isEmpty()) {
+                if (password != null && !password.isEmpty()) {
                     takePicture();
                 } else
                     Toast.makeText(context, "no key set!!!", Toast.LENGTH_SHORT).show();
@@ -122,6 +124,7 @@ public class FotoFragment extends Fragment {
         openCamera(activecam);
         return inflatedView;
     }
+
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
@@ -150,6 +153,7 @@ public class FotoFragment extends Fragment {
     }
 
     Surface surface;
+
     private void createCameraPreview() {
         try {
             SurfaceTexture texture = textureView.getSurfaceTexture();
@@ -189,7 +193,6 @@ public class FotoFragment extends Fragment {
         }
     }
 
-    @SuppressLint("MissingPermission")
     void openCamera(int i) {
         CameraManager manager = (CameraManager) textureView.getContext().getSystemService(Context.CAMERA_SERVICE);
         try {
@@ -200,6 +203,22 @@ public class FotoFragment extends Fragment {
             imageDimension = map.getOutputSizes(SurfaceTexture.class)[0];
             //Check realtime permission if run higher API 23
 
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getContext(), new String[]{
+                                Manifest.permission.CAMERA}
+                        , 1);
+            }
+            else{
+                Log.d("PERMISSION", "CAMERA GRANTED");
+            }
+            ActivityCompat.requestPermissions(
+                    (Activity) getContext(),
+                    new String[] {
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    },
+                    2
+            );
             manager.openCamera(cameraId, stateCallback, null);
 
         } catch (CameraAccessException e) {
@@ -334,7 +353,7 @@ public class FotoFragment extends Fragment {
     {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME,  DiyplayName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
         ContentResolver resolver = context.getContentResolver();
