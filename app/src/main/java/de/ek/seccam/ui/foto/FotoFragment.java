@@ -59,6 +59,7 @@ import java.util.UUID;
 
 import de.ek.seccam.AES;
 import de.ek.seccam.R;
+import de.ek.seccam.VideoActivity;
 import de.ek.seccam.data.model.LoggedInUser;
 
 public class FotoFragment extends Fragment {
@@ -109,7 +110,7 @@ public class FotoFragment extends Fragment {
         //From Java 1.4 , you can use keyword 'assert' to check expression true or false
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        ImageButton change_cam = (ImageButton) inflatedView.findViewById(R.id.change_cam);
+        ImageButton change_cam =  inflatedView.findViewById(R.id.change_cam);
         change_cam.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,6 +125,7 @@ public class FotoFragment extends Fragment {
         openCamera(activecam);
         return inflatedView;
     }
+
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraDevice;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -21,9 +22,12 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseIntArray;
+import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -39,6 +43,7 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
     private static final int MEDIA_RECORDER_REQUEST = 0;
 
     private Camera mCamera;
+    private CameraDevice cameraDevice;
     private TextureView mPreview;
     private MediaRecorder mMediaRecorder;
     private File mOutputFile;
@@ -79,7 +84,6 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
         mPreview.setSurfaceTextureListener(textureListener);
         captureButton = findViewById(R.id.button_capture);
     }
-
     /**
      * The capture button controls all user interaction. When recording, the button click
      * stops recording, releases {@link android.media.MediaRecorder} and {@link android.hardware.Camera}. When not recording,
@@ -97,25 +101,32 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
     }
     public void onfotomodeClick(View view)
     {
-
+        if(!isRecording) {
+            Intent myIntent = new Intent(this, FotoActivity.class);
+            myIntent.putExtra("userScreenName", username); //Optional parameters
+            myIntent.putExtra("userPassword", password);
+            this.startActivity(myIntent);
+            this.finish();
+        }
     }
     public void onchangecameraClick(View view)
     {
-        try {
-            front = !front;
-            releaseCamera();
-            //mCamera.stopPreview();
-            //mPreview.getSurfaceTexture().release();
-            prepareVideoRecorder();
+        if(!isRecording) {
+            try {
+                front = !front;
+                releaseCamera();
+                //mCamera.stopPreview();
+                //mPreview.getSurfaceTexture().release();
+                prepareVideoRecorder();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        catch(Exception e)
-        {e.printStackTrace();}
     }
     private void startCapture(){
 
         if (isRecording) {
             // BEGIN_INCLUDE(stop_release_media_recorder)
-
             // stop recording and release camera
             try {
                 mMediaRecorder.stop();  // stop the recording
@@ -125,11 +136,12 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
                 filein.close();
                 //,mOutputFile.delete();
                 data = new AES().encrypt(data, password);
-                writeextranal(UUID.randomUUID()+".svid","image/svid",data);
+                writeextranal(UUID.randomUUID()+".svid","image/jpeg",data);
             } catch (RuntimeException | IOException e) {
                 // RuntimeException is thrown when stop() is called immediately after start().
                 // In this case the output file is not properly constructed ans should be deleted.
-                Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
+                e.printStackTrace();
+                // Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
                 //noinspection ResultOfMethodCallIgnored
                 mOutputFile.delete();
             }
@@ -222,7 +234,12 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
         List<Camera.Size> mSupportedVideoSizes = parameters.getSupportedVideoSizes();
         Camera.Size optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,
                 mSupportedPreviewSizes, mPreview.getWidth(), mPreview.getHeight());
+        Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
+        if(display.getRotation() == Surface.ROTATION_0) {
+            parameters.setPreviewSize(mPreview.getHeight(), mPreview.getWidth());
+            mCamera.setDisplayOrientation(90);
+        }
         // Use the same size for recording profile.
         CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
         profile.videoFrameWidth = optimalSize.width;
@@ -277,8 +294,29 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
             releaseMediaRecorder();
             return false;
         }
+
         return true;
     }
+
+
+    CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(@NonNull CameraDevice camera) {
+            cameraDevice = camera;
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+            cameraDevice.close();
+        }
+
+        @Override
+        public void onError(@NonNull CameraDevice cameraDevice, int i) {
+            cameraDevice.close();
+            cameraDevice = null;
+        }
+    };
+
 
     private boolean areCameraPermissionGranted() {
 
@@ -354,7 +392,7 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                VideoActivity.this.finish();
+                //VideoActivity.this.finish();
             }
             // inform the user that recording has started
             setCaptureButtonText("Stop");
@@ -383,7 +421,7 @@ public class VideoActivity extends AppCompatActivity  implements ActivityCompat.
         // to view the image.
         values.clear();
         values.put(MediaStore.Images.Media.IS_PENDING, 0);
-        Toast.makeText(this, item.getPath(), Toast.LENGTH_SHORT);
         resolver.update(item, values, null, null);
+        Toast.makeText(this, "File encrypted and saved as:" +DiyplayName , Toast.LENGTH_SHORT).show();
     }
 }

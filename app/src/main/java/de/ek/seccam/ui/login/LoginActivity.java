@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import de.ek.seccam.FotoActivity;
 import de.ek.seccam.R;
+import de.ek.seccam.VideoActivity;
 import de.ek.seccam.allinActivity;
 import de.ek.seccam.ui.login.LoginViewModel;
 import de.ek.seccam.ui.login.LoginViewModelFactory;
@@ -150,10 +151,11 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + model.getDisplayName();
 
-        Intent myIntent = new Intent(this, FotoActivity.class);
+        Intent myIntent = new Intent(this, VideoActivity.class);
         myIntent.putExtra("userScreenName", model.getDisplayLoggedInUser().getDisplayName()); //Optional parameters
         myIntent.putExtra("userPassword", model.getDisplayLoggedInUser().getpassword());
         this.startActivity(myIntent);
+        this.finish();
         // TODO : initiate successful logged in experience
         //Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }

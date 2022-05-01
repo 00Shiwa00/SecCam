@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import de.ek.seccam.ui.foto.FotoFragment;
 import de.ek.seccam.ui.foto.FotoViewModel;
@@ -17,7 +18,8 @@ import de.ek.seccam.ui.foto.FotoViewModel;
 public class FotoActivity extends AppCompatActivity {
 
     private FotoViewModel ViewModel;
-
+    private String userScreenName;
+    private String userPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +40,8 @@ public class FotoActivity extends AppCompatActivity {
                 2
         );
         Intent intent = getIntent();
-        String userScreenName= intent.getStringExtra("userScreenName");
-        String  userPassword = intent.getStringExtra("userPassword");
+        userScreenName= intent.getStringExtra("userScreenName");
+        userPassword = intent.getStringExtra("userPassword");
         if(userPassword != null)
             Log.d("Activity","set");
         setContentView(R.layout.foto_activity);
@@ -49,5 +51,13 @@ public class FotoActivity extends AppCompatActivity {
                     .commitNow();
         }
         ViewModel = new ViewModelProvider(this).get(FotoViewModel.class);
+    }
+    public void onvideomodeclick(View view)
+    {
+        Intent myIntent = new Intent(this, VideoActivity.class);
+        myIntent.putExtra("userScreenName", userScreenName); //Optional parameters
+        myIntent.putExtra("userPassword", userPassword);
+        this.startActivity(myIntent);
+        this.finish();
     }
 }
